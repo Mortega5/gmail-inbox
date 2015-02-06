@@ -1,0 +1,175 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="bower_components/google-signin/google-signin.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+
+<!--
+Element providing solution to no problem in particular.
+
+##### Example
+
+<gmail-inbox></gmail-inbox>
+
+@element gmail-inbox
+@blurb Element providing solution to no problem in particular.
+@status alpha
+@homepage http://Mortega5.github.io/gmail-inbox
+-->
+
+
+<polymer-element name="gmail-inbox" attributes="callback clientID">
+
+	<template>
+		<link rel="stylesheet" href="gmail-inbox.css">
+		<style shim-shadowdom>
+
+			body {
+				font-family: sans-serif;
+			}
+
+			core-header-panel {
+				float: left;
+				width: 360px;
+				height: 400px;
+				/*	margin: 5px;*/
+			}
+
+			core-header-panel[mode=cover]::shadow #mainContainer {
+				left: 70px;
+			}
+
+			.core-header {
+				height: 60px;
+				font-size: 18px;
+				padding: 0 10px;
+				background-color: #E51C23;
+				color: #FFF;
+				transition: height 0.2s;
+			}
+
+
+			.core-header.medium-tall {
+				height: 120px;
+				font-size: 22px;
+			}
+
+			.content {
+				height: 1000px;
+			}
+			paper-dropdown {
+				color: black;
+			}
+
+			.animated {
+				-webkit-animation-duration: 1s;
+				animation-duration: 1s;
+				-webkit-animation-fill-mode: both;
+				animation-fill-mode: both;
+			}
+
+			@-webkit-keyframes fadeInLeft {
+				0% {
+					opacity: 0;
+					-webkit-transform: translateX(-20px);
+				}
+				100% {
+					opacity: 1;
+					-webkit-transform: translateX(0);
+				}
+			}
+			@keyframes fadeInLeft {
+				0% {
+					opacity: 0;
+					transform: translateX(-20px);
+				}
+				100% {
+					opacity: 1;
+					transform: translateX(0);
+				}
+			}
+			.fadeInLeft {
+				-webkit-animation-name: fadeInLeft;
+				animation-name: fadeInLeft;
+			}
+		</style>
+
+		<google-signin></google-signin>
+		<core-header-panel mode="waterfall-tall" tallClass="medium-tall">
+			<div horizontal center layout class="core-header">
+				<paper-icon-button icon="menu" on-click="{{showMenu}}"></paper-icon-button>
+				<span flex style="text-align:center">Principal</span>
+			</div>
+			<div class="content">
+				contenido
+			</div>
+		</core-header-panel>
+
+
+
+		<!--<button on-click="{{login}}"></button>-->
+
+		<!--	<button class="g-signin"
+data-scope="  https://www.googleapis.com/auth/plus.login"
+data-requestvisibleactions="http://schemas.google.com/AddActivity"
+data-clientId="37385538925-4g90dngnd3u8ch17pgf9n0tlqocl8iro.apps.googleusercontent.com"
+data-callback="onSignInCallback"
+data-theme="dark"
+data-cookiepolicy="single_host_origin">
+
+</div>-->
+		<content></content>
+	</template>
+	<script>
+		Polymer({
+			callback:'http://localhost:35000/demo.html',
+			clientID:'37385538925-4g90dngnd3u8ch17pgf9n0tlqocl8iro.apps.googleusercontent.com',
+			VALIDURL:'https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=',
+			OAUTHURL:'https://accounts.google.com/o/oauth2/auth?',
+			SCOPE:'https://www.googleapis.com/auth/userinfo.profile',
+			var:false,
+			TYPE:'token',
+
+			validateToken: function (token) {
+				$.ajax({
+					url: VALIDURL + token,
+					data: null,
+					success: function(responseText){
+						console.log("Respuesta de la validacio: "+responseText);
+					},
+					dataType: "jsonp"
+				});
+			},
+			login: function() {
+
+
+				var _url = this.OAUTHURL + 'scope=' + this.SCOPE + '&client_id=' + this.clientID + '&redirect_uri=' + this.callback + '&response_type=' + this.TYPE;
+				var win  = window.open(_url, "windowname1", 'width=800, height=600');
+
+				var pollTimer  =  window.setInterval(function() {
+					try {
+						console.log(win.document.URL);
+						if (win.document.URL.indexOf(REDIRECT) != -1) {
+							window.clearInterval(pollTimer);
+							var url =   win.document.URL;
+							acToken =   gup(url, 'access_token');
+							tokenType = gup(url, 'token_type');
+							expiresIn = gup(url, 'expires_in');
+							win.close();
+
+							validateToken(acToken);
+						}
+					} catch(e) {
+					}
+				}, 100);
+			},
+			ready: function () {
+
+			},
+			showMenu: function(){
+				this.var=!this.var;
+			},
+		});
+
+	</script>
+</polymer-element>
